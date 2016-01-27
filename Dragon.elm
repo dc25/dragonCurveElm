@@ -47,15 +47,27 @@ update model =
        { model | frame = nextFrame
        }
 
+-- break a list up into n equal sized lists.
+breakupInto : Int -> List a -> List (List a)
+breakupInto n ls = 
+    let segmentCount = (List.length ls) - 1 
+        breakup n ls = case ls of
+          [] -> []
+          _ -> List.take (n+1) ls :: breakup n (List.drop n ls)
+    in if n > segmentCount 
+       then [ls]
+       else breakup (segmentCount // n) ls
+
 view model = 
   let offset = toFloat (model.frame) / toFloat frameCount
+      colors = [red, orange, green, blue] 
   in layers
        [ collage 700 700 
-         [ model.points 
+         (model.points 
            |> newPoints offset
-           |> path 
-           |> traced (solid purple) 
-         ]
+           |> breakupInto (List.length colors) -- for coloring
+           |> List.map path 
+           |> List.map2 (\color path -> traced (solid color) path ) colors )
          , show model.level
        ]
 main =
