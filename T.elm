@@ -21,8 +21,8 @@ segmentize points = case points of
     [p0] -> []
     p0::p1::rest -> (p0, p1) :: segmentize (p1::rest)
 
-
 type Side = Left | Right
+
 otherSide : Side -> Side
 otherSide s = 
     case s of 
@@ -53,13 +53,13 @@ next dragon =
 
 main =
   let dragon = Signal.foldp (\_ d -> next d) init (every second)
-  in Signal.filter (\d -> d.level < 14) init dragon
+  in Signal.filter (\d -> d.level < 18) init dragon
      |> Signal.map view 
 
 view dragon = layers
             [ collage 700 700
                 (dragonSegments dragon)
-              , show "Click to stamp a pentagon."
+              , show (toString dragon.level)
             ]
 
 dragonSegments : Dragon -> List Form
