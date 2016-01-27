@@ -11,7 +11,7 @@ type alias Dragon =
     }
 
 init : Dragon
-init = { points = [(-100.0, 0.0), (100.0, 0.0)]
+init = { points = [(-200.0, 0.0), (200.0, 0.0)]
        , level = 0 
        }
 
@@ -19,23 +19,45 @@ segmentize : List Point -> List (Point, Point)
 segmentize points = case points of
     [] -> []
     [p0] -> []
-    p0::p1::rest -> (p0, p1) :: segmentize rest
+    p0::p1::rest -> (p0, p1) :: segmentize (p1::rest)
+
+
+type Side = Left | Right
+otherSide : Side -> Side
+otherSide s = 
+    case s of 
+        Left -> Right
+        Right -> Left
         
+
+bend : Point -> Point -> Side -> Point
+bend  (x0,y0) (x1,y1) s = 
+    let (vx, vy) = ((x1 - x0) / 2.0, (y1 - y0) / 2.0)
+        (mx, my) = (x0 + vx, y0 + vy)
+        (dx, dy) = case s of 
+                      Left -> (-vy, vx)
+                      Right -> (vy, -vx)
+    in  (mx + dx, my + dy)
+
+evolve : List Point -> Side -> List Point
+evolve points side = case points of
+    [] -> []
+    [p0] -> [p0]  
+    p0::p1::rest -> p0 :: bend p0 p1 side :: evolve (p1::rest) (otherSide side)
 
 next : Dragon -> Dragon
 next dragon = 
-    let len = toFloat (List.length dragon.points)
-    in { points = dragon.points ++ [( len + 0.4, 0.5 )]
-       , level = dragon.level+1
-       }
+    { points = evolve dragon.points Left
+    , level = dragon.level+1
+    }
 
 main =
   let dragon = Signal.foldp (\_ d -> next d) init (every second)
-  in Signal.filter (\d -> d.level < 7) init dragon
+  in Signal.filter (\d -> d.level < 14) init dragon
      |> Signal.map view 
 
 view dragon = layers
-            [ collage 400 400
+            [ collage 700 700
                 (dragonSegments dragon)
               , show "Click to stamp a pentagon."
             ]
