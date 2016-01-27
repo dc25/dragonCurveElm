@@ -3,21 +3,33 @@ import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Time exposing (..)
 
+type alias Point =
+    { x : Float
+    , y : Float
+    }
+
+type alias Dragon =
+    { points : List Point
+    }
+
+init : Dragon
+init = {points = [{x=-1.0, y=0.0},{x=1.0, y=0.0}] }
+
+next : Dragon -> Dragon
+next dragon = 
+    let len = toFloat (List.length dragon.points)
+    in { points = dragon.points ++ [{ x = len + 0.4, y= 0.5 }] }
 
 main =
-  let countedClock = Signal.foldp (\t (c,_) -> (c+1,t)) (0,0) (every second)
-      filteredClock = Signal.filter (\(c,_) -> c < 7) (0,0) countedClock
-      uncountedClock = Signal.map snd filteredClock
+  let countedClock = Signal.foldp (\t (count,dragon, _) -> (count+1,next dragon,  t)) (0,init, 0) (every second)
+      filteredClock = Signal.filter (\(c,_,_) -> c < 7) (0,init, 0) countedClock
+      uncountedClock = Signal.map (\(_,_,t) -> t) filteredClock
   in Signal.map clock uncountedClock
 
 
 clock t = layers
             [ collage 400 400
-                [ filled lightGrey (ngon 12 110)
-                , outlined (solid grey) (ngon 12 110)
-                , hand orange 100 t
-                , hand charcoal 100 (t/60)
-                , hand charcoal 60 (t/720)
+                [ hand orange 100 t
                 ]
               , show "Click to stamp a pentagon."
             ]
