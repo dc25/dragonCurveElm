@@ -3,40 +3,47 @@ import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
 import Time exposing (..)
 
-type alias Point =
-    { x : Float
-    , y : Float
-    }
+type alias Point = (Float, Float)
 
 type alias Dragon =
     { points : List Point
+    , level : Int
     }
 
 init : Dragon
-init = {points = [{x=-1.0, y=0.0},{x=1.0, y=0.0}] }
+init = { points = [(-100.0, 0.0), (100.0, 0.0)]
+       , level = 0 
+       }
+
+segmentize : List Point -> List (Point, Point)
+segmentize points = case points of
+    [] -> []
+    [p0] -> []
+    p0::p1::rest -> (p0, p1) :: segmentize rest
+        
 
 next : Dragon -> Dragon
 next dragon = 
     let len = toFloat (List.length dragon.points)
-    in { points = dragon.points ++ [{ x = len + 0.4, y= 0.5 }] }
+    in { points = dragon.points ++ [( len + 0.4, 0.5 )]
+       , level = dragon.level+1
+       }
 
 main =
-  let countedClock = Signal.foldp (\t (count,dragon, _) -> (count+1,next dragon,  t)) (0,init, 0) (every second)
-      filteredClock = Signal.filter (\(c,_,_) -> c < 7) (0,init, 0) countedClock
-      uncountedClock = Signal.map (\(_,_,t) -> t) filteredClock
-  in Signal.map clock uncountedClock
+  let dragon = Signal.foldp (\_ d -> next d) init (every second)
+  in Signal.filter (\d -> d.level < 7) init dragon
+     |> Signal.map view 
 
-
-clock t = layers
+view dragon = layers
             [ collage 400 400
-                [ hand orange 100 t
-                ]
+                (dragonSegments dragon)
               , show "Click to stamp a pentagon."
             ]
 
-hand clr len time =
-  let
-    angle = degrees (90 - 6 * inSeconds time)
-  in
-    segment (0,0) (fromPolar (len,angle))
-      |> traced (solid clr)
+dragonSegments : Dragon -> List Form
+dragonSegments dragon = 
+    dragon.points
+    |> segmentize 
+    |> List.map (uncurry segment) 
+    |> List.map (traced (solid orange)) 
+       
