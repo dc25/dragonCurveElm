@@ -15,12 +15,6 @@ init = { points = [(-200.0, 0.0), (200.0, 0.0)]
        , level = 0 
        }
 
-segmentize : List Point -> List (Point, Point)
-segmentize points = case points of
-    [] -> []
-    [p0] -> []
-    p0::p1::rest -> (p0, p1) :: segmentize (p1::rest)
-
 type Side = Left | Right
 
 otherSide : Side -> Side
@@ -52,20 +46,12 @@ next dragon =
     }
 
 main =
-  let dragon = Signal.foldp (\_ d -> next d) init (every second)
-  in Signal.filter (\d -> d.level < 18) init dragon
+  let dragon = Signal.foldp (\_ d -> next d) init (every (100*millisecond))
+  in Signal.filter (\d -> d.level < 14) init dragon
      |> Signal.map view 
 
 view dragon = layers
-            [ collage 700 700
-                (dragonSegments dragon)
+            [ collage 700 700 
+              [ dragon.points |> path |> traced (solid orange) ]
               , show (toString dragon.level)
             ]
-
-dragonSegments : Dragon -> List Form
-dragonSegments dragon = 
-    dragon.points
-    |> segmentize 
-    |> List.map (uncurry segment) 
-    |> List.map (traced (solid orange)) 
-       
