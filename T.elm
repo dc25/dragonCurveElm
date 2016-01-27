@@ -20,6 +20,7 @@ init = { points = [(-200.0, 0.0), (200.0, 0.0)]
        , frame = 0
        }
 
+-- New point between two existing points.  Offset to left or right
 newPoint : Point -> Point -> Float -> Point
 newPoint  (x0,y0) (x1,y1) offset = 
   let (vx, vy) = ((x1 - x0) / 2.0, (y1 - y0) / 2.0) 
@@ -47,7 +48,7 @@ update model =
        }
 
 view model = 
-  let offset = (toFloat (model.frame)/toFloat frameCount)
+  let offset = toFloat (model.frame) / toFloat frameCount
   in layers
        [ collage 700 700 
          [ model.points 
