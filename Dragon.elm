@@ -15,7 +15,7 @@ maxLevel = 12
 frameCount = 100
 
 init : Model
-init = { points = [(-200.0, 0.0), (200.0, 0.0)]
+init = { points = [(-200.0, -70.0), (200.0, -70.0)]
        , level = 0 
        , frame = 0
        }
@@ -62,7 +62,7 @@ view model =
   let offset = toFloat (model.frame) / toFloat frameCount
       colors = [red, orange, green, blue] 
   in layers
-       [ collage 700 700 
+       [ collage 700 500
          (model.points 
            |> newPoints offset
            |> breakupInto (List.length colors) -- for coloring
