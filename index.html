@@ -5607,7 +5607,7 @@ Elm.Main.make = function (_elm) {
                }
          }
    });
-   var init = {points: _U.list([{ctor: "_Tuple2",_0: -200.0,_1: 0.0},{ctor: "_Tuple2",_0: 200.0,_1: 0.0}]),level: 0,frame: 0};
+   var init = {points: _U.list([{ctor: "_Tuple2",_0: -200.0,_1: -70.0},{ctor: "_Tuple2",_0: 200.0,_1: -70.0}]),level: 0,frame: 0};
    var frameCount = 100;
    var update = function (model) {
       var nextFrame = model.frame + 1;
@@ -5618,7 +5618,7 @@ Elm.Main.make = function (_elm) {
       var offset = $Basics.toFloat(model.frame) / $Basics.toFloat(frameCount);
       return $Graphics$Element.layers(_U.list([A3($Graphics$Collage.collage,
                                               700,
-                                              700,
+                                              500,
                                               A3($List.map2,
                                               F2(function (color,path) {    return A2($Graphics$Collage.traced,$Graphics$Collage.solid(color),path);}),
                                               colors,
